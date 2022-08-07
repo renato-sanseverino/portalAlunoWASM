@@ -1,30 +1,11 @@
-
-import mysql from "mysql2";
 import express from "express";
+import pool from "./config/db";
 
 
 var app = express();
 const staticRoot = '../Frontend/publish/wwwroot'; // diretório produzido por:   dotnet publish -o publish
 const port = 3000;
 
-// configura os parametros de conexão
-var mysqlConnection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'p@ssw0rd',
-    database: 'portal_aluno'
-});
-
-// conecta ao banco de dados
-mysqlConnection.connect(
-    err => {
-        if (!err) {
-            console.log("DB connection succeeded!");
-        } else {
-            console.log("DB connection failed!\n Error: " + JSON.stringify(err, undefined, 2));
-        }
-    }
-);
 
 app.use("/", express.static(staticRoot));
 
