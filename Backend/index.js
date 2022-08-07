@@ -1,5 +1,5 @@
-import express from "express";
-import pool from "./config/db";
+import express from 'express';
+import { pool }  from './config/db.js';
 
 
 var app = express();
@@ -12,24 +12,29 @@ app.use("/", express.static(staticRoot));
 // inicia a API escutando na porta 3000
 app.listen(port, () => console.log('Express escutando chamadas na porta ' + port));
 
+
 // recupera o cadastro
-app.get('/recuperarProfessor/:id', (req, res) => {
-    mysqlConnection.query('SELECT * FROM professor WHERE id = ?', [req.params.id], (err, rows, fields) => {
-        if (!err) {
-            res.send(rows);
-        } else {
-            console.log("Error: " + JSON.stringify(err, undefined, 2));
-        }
-    })
-});
+app.get('/recuperarProfessor/:id', async (req, res) => {
+	try {
+		const [result] = await pool.query('SELECT * FROM professor WHERE id = ?', [req.params.id]);
+
+		return res.status(200).json(result);
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
+	}
+})
 
 // lista todos os registros da tabela
-app.get('/listarProfessores', (req, res) => {
-    mysqlConnection.query('SELECT * FROM professor', (err, rows, fields) => {
-        if (!err) {
-            res.send(rows);
-        } else {
-            console.log("Error: " + JSON.stringify(err, undefined, 2));
-        }
-    })
-});
+app.get('/listarProfessores', async (req, res) => {
+	try {
+		const [result] = await pool.query("SELECT * FROM professor");
+
+		return res.status(200).json(result);
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
+	}
+})
