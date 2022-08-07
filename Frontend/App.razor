@@ -1,0 +1,35 @@
+﻿
+@inject HttpClient Http;
+@using PortalAlunoWASM.components;
+
+
+<style>
+    .logo{
+        width:200px; height:200px;
+    }
+</style>
+
+<div>
+    <h1 style="color: white">Quadro de funcionários</h1>
+	<!-- <img src="../img/logo.png" class="logo" /> -->
+</div>
+
+
+<div class="container">
+    <div class="grid">
+        @foreach (Professor professor in dadosProfessores)
+        {
+            <CadastroProfessor professor="@professor" />
+        }
+    </div>
+</div>
+
+
+@code {
+	private Professor[] dadosProfessores = new Professor[] { };
+
+	protected override async Task OnInitializedAsync()
+	{
+		dadosProfessores = await Http.GetFromJsonAsync<Professor[]>("/listarProfessores");
+	}
+}
