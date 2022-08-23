@@ -1,13 +1,19 @@
-import express from 'express';
-import { pool }  from './config/db.js';
+
+const express = require('express');
+const prisma = require('./config/db');
 
 
-var app = express();
-const staticRoot = '../Frontend/publish/wwwroot'; // diretório produzido por:   dotnet publish -o publish
 const port = 3000;
+const app = express();
+const staticRoot = '../Frontend/publish/wwwroot'; // diretório produzido por:   dotnet publish -o publish
 
 
 app.use("/", express.static(staticRoot));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
+
+// setHeader('Access-Control-Allow-Origin', '*')
+
 
 // inicia a API escutando na porta 3000
 app.listen(port, () => console.log('Express escutando chamadas na porta ' + port));
@@ -15,26 +21,19 @@ app.listen(port, () => console.log('Express escutando chamadas na porta ' + port
 
 // recupera o cadastro
 app.get('/recuperarProfessor/:id', async (req, res) => {
-	try {
-		const [result] = await pool.query('SELECT * FROM professor WHERE id = ?', [req.params.id]);
+	const { id } = req.params || req.query;
+	// Elvis Operator ?   nunca ouvi esse nome na minha vida, isso é novidade, kkkkkk
+	// É uns memes que ninguem entende,  só o criador dos memes que entende o que ele posta, kkkkkk
 
-		return res.status(200).json(result);
-	} catch (error) {
-		return res.status(500).json({
-			message: error.message,
-		});
-	}
-})
+	prisma.professor.findUnique({ where: { id: Number(id) } })
+	.then((professor) => res.send(professor))
+	.catch((error) => res.send("Error: " + error.message))
+});
+
 
 // lista todos os registros da tabela
 app.get('/listarProfessores', async (req, res) => {
-	try {
-		const [result] = await pool.query("SELECT * FROM professor");
-
-		return res.status(200).json(result);
-	} catch (error) {
-		return res.status(500).json({
-			message: error.message,
-		});
-	}
-})
+	prisma.professor.findMany()
+	.then((professores) => res.send(professores))
+	.catch((error) => res.send("Error: " + error.message))
+});
